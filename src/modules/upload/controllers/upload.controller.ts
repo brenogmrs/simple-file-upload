@@ -19,8 +19,9 @@ export class UploadController {
     @UploadedFile() file: Express.Multer.File,
     @Req() req: Request,
   ): Promise<void> {
-    const { tenantid } = req.headers;
+    const tenantid = req.headers.tenantid as string;
+    const { bucket } = req.body;
 
-    return this.uploadService.execute(file, tenantid);
+    return this.uploadService.execute(file, tenantid, bucket);
   }
 }

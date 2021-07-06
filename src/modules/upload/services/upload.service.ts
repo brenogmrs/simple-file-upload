@@ -6,14 +6,22 @@ dotenv.config();
 
 @Injectable()
 export class UploadService {
-  public async execute(file, tenantid) {
+  public async execute(
+    file: Express.Multer.File,
+    tenantid: string,
+    bucket: string,
+  ) {
     const { originalname } = file;
-    const bucketS3 = process.env.AWS_S3_BUCKET_NAME;
 
-    await this.uploadS3(file.buffer, bucketS3, originalname, tenantid);
+    await this.uploadS3(file.buffer, bucket, originalname, tenantid);
   }
 
-  public async uploadS3(file, bucket: string, name: string, tenantid: string) {
+  public async uploadS3(
+    file: Buffer | Blob,
+    bucket: string,
+    name: string,
+    tenantid: string,
+  ): Promise<void> {
     const s3 = this.getS3();
     const params = {
       Bucket: bucket,
@@ -27,13 +35,12 @@ export class UploadService {
           Logger.error(err);
           reject(err.message);
         }
-        console.log('se caiu aqui a imagem ta na aws');
         resolve(data);
       });
     });
   }
 
-  public getS3() {
+  public getS3(): AWS.S3 {
     return new AWS.S3({
       accessKeyId: process.env.AWS_ACCESS_KEY_ID,
       secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
