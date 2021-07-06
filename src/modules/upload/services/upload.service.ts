@@ -17,7 +17,7 @@ export class UploadService {
   }
 
   public async uploadS3(
-    file: Buffer | Blob,
+    file: Buffer,
     bucket: string,
     name: string,
     tenantid: string,
@@ -25,7 +25,7 @@ export class UploadService {
     const s3 = this.getS3();
     const params = {
       Bucket: bucket,
-      Key: `${tenantid}/${name}`,
+      Key: `${tenantid}/${Date.now().toString()} - ${name}`,
       Body: file,
     };
 
