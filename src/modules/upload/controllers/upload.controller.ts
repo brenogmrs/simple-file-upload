@@ -8,6 +8,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UploadService } from '../services/upload.service';
 import { Request } from 'express';
+import { AWSResponse } from '../interface/awsResponse.interface';
 
 @Controller('fileupload')
 export class UploadController {
@@ -18,7 +19,7 @@ export class UploadController {
   async upload(
     @UploadedFile() file: Express.Multer.File,
     @Req() req: Request,
-  ): Promise<void> {
+  ): Promise<AWSResponse> {
     const tenantid = req.headers.tenantid as string;
     const { bucket } = req.body;
 

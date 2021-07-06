@@ -1,6 +1,7 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import * as AWS from 'aws-sdk';
 import * as dotenv from 'dotenv';
+import { AWSResponse } from '../interface/awsResponse.interface';
 
 dotenv.config();
 
@@ -10,10 +11,17 @@ export class UploadService {
     file: Express.Multer.File,
     tenantid: string,
     bucket: string,
-  ) {
+  ): Promise<AWSResponse> {
     const { originalname } = file;
 
-    await this.uploadS3(file.buffer, bucket, originalname, tenantid);
+    const data = await this.uploadS3(
+      file.buffer,
+      bucket,
+      originalname,
+      tenantid,
+    );
+
+    return data;
   }
 
   public async uploadS3(
@@ -21,23 +29,16 @@ export class UploadService {
     bucket: string,
     name: string,
     tenantid: string,
-  ): Promise<void> {
+  ) {
     const s3 = this.getS3();
     const params = {
       Bucket: bucket,
       Key: `${tenantid}/${Date.now().toString()} - ${name}`,
       Body: file,
+      ACL: 'public-read',
     };
 
-    return new Promise((resolve, reject) => {
-      s3.upload(params, (err, data) => {
-        if (err) {
-          Logger.error(err);
-          reject(err.message);
-        }
-        resolve(data);
-      });
-    });
+    return s3.upload(params).promise();
   }
 
   public getS3(): AWS.S3 {
